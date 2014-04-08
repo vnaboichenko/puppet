@@ -1,0 +1,7 @@
+[mirantis-local]
+name=Mirantis Local Repo
+baseurl=http://bigdata-repo.mirantis.com/
+failovermethod=priority
+enabled=1
+gpgcheck=0
+

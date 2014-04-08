@@ -1,0 +1,9 @@
+JAVA_HOME=<%= scope.lookupvar('java::java_base') %>/jdk<%= scope.lookupvar('java::java_version') %>
+JDK_HOME=<%= scope.lookupvar('java::java_base') %>/jdk<%= scope.lookupvar('java::java_version') %>
+
+
+PATH=<%= scope.lookupvar('java::java_base') %>/jdk<%= scope.lookupvar('java::java_version') %>/bin:$PATH
+export JAVA_HOME
+export JRE_HOME
+export PATH
+

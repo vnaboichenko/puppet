@@ -1,0 +1,22 @@
+---
+ssh_packages: 'test'
+seeds:
+  - '10.0.0.2'
+  - '10.0.0.3'
+  - '10.0.0.6'
+  - '10.0.0.8'
+  - '10.0.0.11'
+  - '10.0.0.10' 
+max_heap     : '14G'
+heap_newsize : '800M'
+version      : '2.0.6'
+cluster_name : 'Test Cluster'
+java_tarbar : '7u51-linux-x64'
+java_version : '1.7.0_51'
+magnetodb_upstreams: 
+  - '10.0.0.19'
+  - '10.0.0.18'
+  - '10.0.0.26'
+  - '10.0.0.16'
+  - '10.0.0.14'
+magnetodb_port: '9999'

@@ -1,0 +1,8 @@
+upstream magnetodb_backend {
+  <% upstreams.each do |i| %>
+  server <%= i %>:<%= port%>;
+  <% end %>
+check interval=5000 rise=1 fall=3 timeout=1500 type=http;
+check_http_expect_alive http_2xx http_3xx http_5xx http_4xx;
+
+}

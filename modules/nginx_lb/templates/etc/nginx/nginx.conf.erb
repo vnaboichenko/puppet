@@ -1,0 +1,90 @@
+user nginx;
+worker_processes 12;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 9000;
+}
+
+http {
+client_max_body_size 200m;
+
+#include tomcat_backend
+include /etc/nginx/scale/magnetodb_list;
+
+
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ##
+    # Logging Settings
+    ##
+#$upstream_addr
+#хранит IP-адрес и порт сервера или путь к UNIX-сокету. Если при обработке запроса были сделаны обращения к нескольким серверам, то их адреса разделяются запятой, например, “192.168.1.1:80, 192.168.1.2:80, unix:/tmp/sock”. Если произошло внутреннее перенаправление от одной группы серверов на другую с помощью “X-Accel-Redirect” или error_page, то эти группы серверов разделяются двоеточием, например, “192.168.1.1:80, 192.168.1.2:80, unix:/tmp/sock : 192.168.10.1:80, 192.168.10.2:80”.
+#$upstream_response_time
+#хранит времена ответов серверов в секундах с точностью до миллисекунд. Несколько ответов также разделяются запятыми и двоеточиями.
+#$upstream_status
+#хранит коды ответов серверов. Несколько ответов также разделяются запятыми и двоеточиями.
+#$upstream_http_...
+log_format  log_proxy	'"$http_x_forwarded_proto" - $remote_addr - $remote_user [$time_local] '
+        	    '"$scheme" "$request" $status $bytes_sent '
+        	    '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$gzip_ratio"'
+	    '" Upstream=$upstream_addr "'
+	    '" ResponseTime=$upstream_response_time "'
+	    '" Status=$upstream_status "';
+    access_log /var/log/nginx/access.log log_proxy;
+    error_log /var/log/nginx/error.log;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    # Virtual Host Configs
+
+
+#include /etc/nginx/ssl/ssl.conf;
+
+server {
+    listen 80;
+    real_ip_header X-Forwarded-For;
+#    real_ip_header X-Real-IP;
+    set_real_ip_from 0.0.0.0/0;
+
+    location = /nginx_status {
+    stub_status on;
+    access_log   off;
+    deny all;
+    }
+
+    location = /check_status {
+        check_status;
+
+    }
+
+
+     location / {
+               proxy_pass http://magnetodb_backend;
+                }
+                                   
+
+     
+#     location / {
+#     return 403;
+#     break;
+#     }
+
+
+
+}
+
+
+
+
+
+}
+
