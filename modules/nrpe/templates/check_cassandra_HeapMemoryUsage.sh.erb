@@ -1,0 +1,63 @@
+#!/bin/bash
+
+
+# just wrapper
+
+while getopts ":w:c:" OPTION; do
+    case "$OPTION" in
+        c)  CRITICAL_LEVEL="$OPTARG" ;;
+        w)  WARNING_LEVEL="$OPTARG" ;;
+    esac
+done
+
+
+
+if [ -z ${WARNING_LEVEL} ]
+then
+    echo "Undefined warning level"
+    exit 3
+fi
+
+if [ -z ${CRITICAL_LEVEL} ]
+then
+    echo "Undefined critical level"
+    exit 3
+fi
+
+
+if [ ${WARNING_LEVEL} -eq ${WARNING_LEVEL} 2>/dev/null ]; 
+then
+    echo ${WARNING_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level. Should be integer"
+    exit 3
+fi
+
+if [ ${CRITICAL_LEVEL} -eq ${CRITICAL_LEVEL} 2>/dev/null ]; 
+then
+    echo ${CRITICAL_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level"
+    exit 3
+fi
+
+
+#echo ${CRITICAL_LEVEL}" -lt "${WARNING_LEVEL}
+if [ ${CRITICAL_LEVEL} -lt ${WARNING_LEVEL} 2>/dev/null ]; 
+then
+    echo "warning Level should be less than critical level (-w "${WARNING_LEVEL} "and -c " ${CRITICAL_LEVEL}")"
+    exit 3
+fi
+
+
+RESULT=`<%= @NagiosPluginsPath %>/check_jmx -U service:jmx:rmi:///jndi/rmi://127.0.0.1:7199/jmxrmi -O java.lang:type=Memory -A HeapMemoryUsage -K used -I HeapMemoryUsage -J used -vvvv -w ${WARNING_LEVEL} -c ${CRITICAL_LEVEL}`
+STATUS=$?
+
+PERF_DATA=`echo ${RESULT}|  awk -F"HeapMemoryUsage.used=" '{ print $2}' | awk -F"{" '{ print $1}'`
+echo ${RESULT}"|HeapMemoryUsage="${PERF_DATA}";"${WARNING_LEVEL}";"${CRIRICAL_LEVEL}
+
+exit ${STATUS}
+
+
+
+

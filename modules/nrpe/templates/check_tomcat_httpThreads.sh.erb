@@ -1,0 +1,96 @@
+#!/bin/bash
+
+
+HTTP_PORT=8080
+# just wrapper
+
+
+while getopts ":w:c:" OPTION; do
+    case "$OPTION" in
+            c)  CRITICAL_LEVEL="$OPTARG" ;;
+            w)  WARNING_LEVEL="$OPTARG" ;;
+    esac
+done
+
+if [ -z ${WARNING_LEVEL} ]
+then
+    echo "Undefined warning level"
+    exit 3
+fi
+
+if [ -z ${CRITICAL_LEVEL} ]
+then
+    echo "Undefined critical level"
+    exit 3
+fi
+
+
+if [ ${WARNING_LEVEL} -eq ${WARNING_LEVEL} 2>/dev/null ]; 
+then
+    echo ${WARNING_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level. Should be integer"
+    exit 3
+fi
+
+if [ ${CRITICAL_LEVEL} -eq ${CRITICAL_LEVEL} 2>/dev/null ]; 
+then
+    echo ${CRITICAL_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level"
+    exit 3
+fi
+
+
+currentThreadsBusy=`<%= @NagiosPluginsPath %>/check_jmx -U service:jmx:rmi:///jndi/rmi://127.0.0.1:1099/jmxrmi	-O "Catalina:type=ThreadPool,name=http-${HTTP_PORT}"  -A currentThreadsBusy -vvvv	| awk -F"=" '{ print $2}'`
+maxThreads=`<%= @NagiosPluginsPath %>/check_jmx -U service:jmx:rmi:///jndi/rmi://127.0.0.1:1099/jmxrmi		-O "Catalina:type=ThreadPool,name=http-${HTTP_PORT}"  -A maxThreads -vvvv		| awk -F"=" '{ print $2}'`
+currentThreadCount=`<%= @NagiosPluginsPath %>/check_jmx -U service:jmx:rmi:///jndi/rmi://127.0.0.1:1099/jmxrmi	-O "Catalina:type=ThreadPool,name=http-${HTTP_PORT}"  -A currentThreadCount -vvvv	| awk -F"=" '{ print $2}'`
+
+# warning and critical level - critical usage in percents
+# e.g. -c 10 means we will create alert if we use 10% of 200 theads pool - 20 threads
+
+
+CRITICAL_THREADS_LEVEL=`echo $maxThreads*${CRITICAL_LEVEL}/100 | bc`
+WARNING_THREADS_LEVEL=`echo $maxThreads*${WARNING_LEVEL}/100 | bc`
+
+#echo currentThreadCount $currentThreadCount
+#echo maxThreads  $maxThreads
+#echo currentThreadsBusy $currentThreadsBusy
+#echo $WARNING_THREADS_LEVEL
+#echo $CRITICAL_THREADS_LEVEL
+
+
+if [ -z ${currentThreadsBusy} ]
+then
+    echo "Undefined currentThreadBusy"
+    exit 3
+fi
+
+if [ -z ${maxThreads} ]
+then
+    echo "Undefined maxThreads"
+    exit 3
+fi
+
+if [ -z ${currentThreadCount} ]
+then
+    echo "Undefined currentThreadCount"
+    exit 3
+fi
+
+# if we have more then ${CRITICAL_THREADS_LEVEL} we will create alert
+
+if [ ${currentThreadsBusy} -gt ${WARNING_THREADS_LEVEL} ]
+then
+    if [ ${currentThreadsBusy} -gt ${CRITICAL_THREADS_LEVEL} ]
+    then
+    # Critical
+        echo "CRITICAL - Threads used " ${currentThreadsBusy}"|currentThreadsBusy="$currentThreadsBusy" currentThreadsBusy="$currentThreadsBusy" maxThreads="$maxThreads
+        exit 2
+    fi
+    echo "WARNING - Threads used " ${currentThreadsBusy}"|currentThreadsBusy="$currentThreadsBusy" currentThreadsBusy="$currentThreadsBusy" maxThreads="$maxThreads
+    exit 1
+fi
+
+echo "OK - Threads used " ${currentThreadsBusy}"|currentThreadsBusy="$currentThreadsBusy" currentThreadsBusy="$currentThreadsBusy" maxThreads="$maxThreads
+

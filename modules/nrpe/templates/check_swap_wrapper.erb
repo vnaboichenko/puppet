@@ -1,0 +1,37 @@
+#!/bin/bash
+
+
+
+function show_usage_message {
+echo "check_swap: Could not parse arguments"
+echo "Usage:"
+echo "check_swap [-av] -w <percent_free>% -c <percent_free>%"
+echo "check_swap [-av] -w <bytes_free> -c <bytes_free>"
+
+}
+
+function check_params {
+for i in $*
+do
+    case $i in
+        -c=*)
+        CRITICAL=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+
+        -w=*)
+        WARNING=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	;;
+
+        *)
+             show_usage_message
+        ;;
+    esac
+done
+}
+
+if <%= @NagiosPluginsPath %>/check_swap $@ | grep "(0 MB out of 0 MB)">/dev/null 2>/dev/null
+then
+    echo "SWAP OK - 100% free (0 MB out of 0 MB) |swap=0MB;0;0;0;0"
+else
+    <%= @NagiosPluginsPath %>/check_swap $@ 
+fi

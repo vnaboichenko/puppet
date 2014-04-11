@@ -1,0 +1,8 @@
+set smtp_url="smtp://<%= @nagios_smtp_login %>@<%= @nagios_smtp_server %>:25/"
+set smtp_pass="<%= @nagios_smtp_pass %>"
+set realname="Clickatell <%= @env %> Nagios"
+set from="<%= @nagios_sentfrom_email %>"
+set use_from=yes
+set envelope_from_address="<%= @nagios_sentfrom_email %>"
+set record="/etc/nagios/mutt/sent"
+

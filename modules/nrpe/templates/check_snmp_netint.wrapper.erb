@@ -1,0 +1,6 @@
+#!/bin/bash
+
+INFO=`<%= @NagiosPluginsPath %>/check_snmp_netint.pl $@`
+RES=$?
+echo $INFO | awk -F"ptime" '{print $ 1}'
+exit $RES

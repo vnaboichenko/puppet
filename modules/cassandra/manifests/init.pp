@@ -1,7 +1,8 @@
 class cassandra (
 $max_heap     = '3G',
+$download_url = 'http://archive.apache.org',
 $heap_newsize = '800M',
-$version      = '2.0.6',
+$version      = '2.0.7',
 $jmx_port     = '7199',
 $mount	      = 'undef',
 $bind_address = "$::ipaddress_eth0",
@@ -167,7 +168,8 @@ java_base    =>  $java_base,
 
         	exec { "dw_cassandra":
 		cwd => "${cassandra::cassandra_base}",
-		command => "/usr/bin/wget http://archive.apache.org/dist/cassandra/${cassandra::version}/apache-cassandra-${cassandra::version}-bin.tar.gz",
+#		command => "/usr/bin/wget ${download_url}/dist/cassandra/${cassandra::version}/apache-cassandra-${cassandra::version}-bin.tar.gz",
+		command => "/usr/bin/wget http://162.242.173.125/dist/cassandra/${cassandra::version}/apache-cassandra-${cassandra::version}-bin.tar.gz",
 		alias => "cassandra-source-tgz",
 		creates => "${cassandra::cassandra_base}/apache-cassandra-${cassandra::version}-bin.tar.gz",
 		user => "cassandra",

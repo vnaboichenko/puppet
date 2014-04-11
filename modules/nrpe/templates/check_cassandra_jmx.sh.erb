@@ -1,0 +1,94 @@
+#!/bin/bash
+
+
+# just wrapper
+
+while getopts ":w:c:O:A:" OPTION; do
+    case "$OPTION" in
+        c)  CRITICAL_LEVEL="$OPTARG" ;;
+        w)  WARNING_LEVEL="$OPTARG" ;;
+	O)  OBJECT="$OPTARG" ;;
+	A)  ATTRIBUTE="$OPTARG" ;;
+    esac
+done
+
+
+
+if [ -z ${WARNING_LEVEL} ]
+then
+    echo "Undefined warning level"
+    exit 3
+fi
+
+if [ -z ${CRITICAL_LEVEL} ]
+then
+    echo "Undefined critical level"
+    exit 3
+fi
+
+
+if [ ${WARNING_LEVEL} -eq ${WARNING_LEVEL} 2>/dev/null ]; 
+then
+    echo ${WARNING_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level. Should be integer"
+    exit 3
+fi
+
+if [ ${CRITICAL_LEVEL} -eq ${CRITICAL_LEVEL} 2>/dev/null ]; 
+then
+    echo ${CRITICAL_LEVEL}" is a number" >/dev/null
+else
+    echo "Undefined warning level"
+    exit 3
+fi
+
+
+#echo ${CRITICAL_LEVEL}" -lt "${WARNING_LEVEL}
+if [ ${CRITICAL_LEVEL} -lt ${WARNING_LEVEL} 2>/dev/null ]; 
+then
+    echo "warning Level should be less than critical level (-w "${WARNING_LEVEL} "and -c " ${CRITICAL_LEVEL}")"
+    exit 3
+fi
+
+#OBJECT=org.apache.cassandra.db:type=StorageProxy
+#ATTRIBUTE=TotalReadLatencyMicros
+#ATTRIBUTE=TotalWriteLatencyMicros
+
+#OBJECT=org.apache.cassandra.internal:type=FlushWriter
+#ATTRIBUTE=ActiveCount
+#ATTRIBUTE=CompletedTasks
+
+
+
+
+#For each column family: Mappings, Indexes, SyncActions
+
+#OBJECT=org.apache.cassandra.db:type=ColumnFamilies,keyspace=meshin,columnfamily=Mappings
+#OBJECT=org.apache.cassandra.db:type=ColumnFamilies,keyspace=meshin,columnfamily=Indexes
+#OBJECT=org.apache.cassandra.db:type=ColumnFamilies,keyspace=meshin,columnfamily=SyncActions
+
+#ATTRIBUTE=ReadCount
+#ATTRIBUTE=WriteCount
+#ATTRIBUTE=LiveSSTableCount
+#
+#OBJECT=org.apache.cassandra.db:type=CompactionManager 
+#ATTRIBUTE=TotalCompactionsCompleted
+#ATTRIBUTE=PendingTasks
+#ATTRIBUTE==CompletedTasks
+
+#echo $OBJECT 
+#echo ${ATTRIBUTE}
+
+RESULT=`<%= @NagiosPluginsPath %>/check_jmx -U service:jmx:rmi:///jndi/rmi://127.0.0.1:7199/jmxrmi -O ${OBJECT} -A ${ATTRIBUTE} -vvvv -w ${WARNING_LEVEL} -c ${CRITICAL_LEVEL}`
+STATUS=$?
+
+PERF_DATA=`echo ${RESULT}|  awk -F"${ATTRIBUTE}=" '{ print $2}' | awk -F"{" '{ print $1}'`
+echo ${OBJECT}" "${ATTRIBUTE}"="${PERF_DATA}"|${ATTRIBUTE}="${PERF_DATA}";"${WARNING_LEVEL}";"${CRIRICAL_LEVEL}
+
+#exit ${STATUS}
+exit 0
+
+
+
+
