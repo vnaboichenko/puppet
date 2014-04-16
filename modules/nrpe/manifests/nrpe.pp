@@ -11,7 +11,7 @@ class nrpe_packages {
     		ensure => installed
 	    }
 	}
-    	centos:	{ 
+    	CentOS:	{ 
 	    package {
     		"nrpe":
     		ensure => installed
@@ -297,26 +297,21 @@ class nrpe_packages {
 # определение пути для установки плагинов 
 # зависит как от архитектуры так и от дистрибутива
 class  nrpe_extra_plugins {
-    if $architecture == "x86_64" {
-	case $operatingsystem  {
+	case $::operatingsystem  {
     	    Ubuntu:	{ $NagiosPluginsPath = "/usr/lib/nagios/plugins" }
-    	    centos:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
+    	    CentOS:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
 	    Amazon:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
-        }
-    } 
-    else {
-	$NagiosPluginsPath = "/usr/lib/nagios/plugins" 
-    }
-
+#	    default:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
+ }
     case $operatingsystem  {
 	Ubuntu:	{ $NRPEUser = "nagios" }
-    	centos:	{ $NRPEUser = "nrpe" }
+    	CentOS:	{ $NRPEUser = "nrpe" }
 	Amazon:	{ $NRPEUser = "nrpe" }
     }
 
     case $operatingsystem  {
 	Ubuntu:	{ $NRPEService = "nagios-nrpe-server" }
-    	centos:	{ $NRPEService = "nrpe" }
+    	CentOS:	{ $NRPEService = "nrpe" }
 	Amazon:	{ $NRPEService = "nrpe" }
     }
 
@@ -343,19 +338,25 @@ service {
 # Определяю работу со списком файлов что бы не перечислять их по одному
 
 define nrpe_plugins {
+	case $::operatingsystem  {
+    	    Ubuntu:	{ $NagiosPluginsPath = "/usr/lib/nagios/plugins" }
+    	    CentOS:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
+	    Amazon:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
+#	    default:	{ $NagiosPluginsPath = "/usr/lib64/nagios/plugins" }
+ }
     file {
 	"/$NagiosPluginsPath/${title}":
-	ensure => directory,
+	ensure => present,
 	owner  => 'root',
 	mode   => 0755,
-	source => "puppet:///nrpe/${title}",
+	source => "puppet:///modules/nrpe/${title}",
 	require => File["$NagiosPluginsPath"],
   }
 }
 
     nrpe_plugins { 
 	[
-	    
+
 	    "check_cassandra_nodes.sh",
 	    "check_cassandra_SystemCPU.sh",
 	    "check_cassandra_SystemMemory.sh",
@@ -375,7 +376,6 @@ define nrpe_plugins {
 	    "jmxquery.jar"
 	    ]: 
 	} 
-
 
     file {  nrpe_cfg:
 #       source => "puppet:///files/nrpe/nrpe.cfg",
@@ -436,7 +436,7 @@ define nrpe_plugins {
 
     file {  check_rabbit_queue:
         name => "$NagiosPluginsPath/check_rabbit_queue.sh",
-	source => "puppet:///nrpe/check_rabbit_queue.sh",
+	content => template("nrpe/check_rabbit_queue.sh.erb"),
 	notify  => Service["$NRPEService"],
 	owner  => 'root',
 	mode   => 0755,
@@ -444,7 +444,7 @@ define nrpe_plugins {
 
     file {  check_worker_connection:
         name => "$NagiosPluginsPath/check_worker_connection.sh",
-        source => "puppet:///nrpe/check_worker_connection.sh",
+        content => template("nrpe/check_worker_connection.sh.erb"),
         notify  => Service["$NRPEService"],
         owner  => 'root',
         mode   => 0755,
@@ -452,7 +452,7 @@ define nrpe_plugins {
 
     file {  check_calculate:
         name => "$NagiosPluginsPath/check_calculate.sh",
-        source => "puppet:///nrpe/check_calculate.sh",
+        content => ("nrpe/check_calculate.sh.erb"),
         notify  => Service["$NRPEService"],
         owner  => 'root',
         mode   => 0755,
@@ -462,7 +462,7 @@ define nrpe_plugins {
 
     file {  check_cassandra_backups:
         name => "$NagiosPluginsPath/check_cassandra_backups.sh",
-	source => "puppet:///nrpe/check_cassandra_backups.sh",
+	content => template("nrpe/check_cassandra_backups.sh.erb"),
 	notify  => Service["$NRPEService"],
 	owner  => 'root',
 	mode   => 0755,
@@ -472,7 +472,7 @@ define nrpe_plugins {
 
     file {  check_hdfs:
         name => "$NagiosPluginsPath/check_hdfs.sh",
-	source => "puppet:///nrpe/check_hdfs.sh",
+	content => template("nrpe/check_hdfs.sh.erb"),
 	notify  => Service["$NRPEService"],
 	owner  => 'root',
 	mode   => 0755,

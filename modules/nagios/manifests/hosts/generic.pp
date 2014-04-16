@@ -9,11 +9,11 @@ class nagios::hosts::generic (
 
   require nagios::params
 			    $ipaddress = "$::ipaddress"
-    
-
+$nagios_hostname=$hostname    
+  
   @@nagios_host { "$nagios_hostname":
     ensure     => present,
-    alias      => $ipaddress,
+    alias      => $nagios_hostname,
     host_name  => "$nagios_hostname",
     address    => $ipaddress,
 #    address    => $::ec2_public_ipv4,

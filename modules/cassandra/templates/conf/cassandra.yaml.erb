@@ -46,6 +46,7 @@ hinted_handoff_throttle_in_kb: 1024
 # cross-dc handoff tends to be slower
 max_hints_delivery_threads: 2
 
+
 # The following setting populates the page cache on memtable flush and compaction
 # WARNING: Enable this setting only when the whole node's data fits in memory.
 # Defaults to: false
@@ -236,8 +237,8 @@ seed_provider:
 # On the other hand, since writes are almost never IO bound, the ideal
 # number of "concurrent_writes" is dependent on the number of cores in
 # your system; (8 * number_of_cores) is a good rule of thumb.
-concurrent_reads: 32
-concurrent_writes: 32
+concurrent_reads: 64
+concurrent_writes: 64
 
 # Total memory to use for sstable-reading buffers.  Defaults to
 # the smaller of 1/4 of heap or 512MB.
@@ -459,7 +460,7 @@ multithreaded_compaction: false
 # 16 to 32 times the rate you are inserting data is more than sufficient.
 # Setting this to 0 disables throttling. Note that this account for all types
 # of compaction, including validation compaction.
-compaction_throughput_mb_per_sec: 16
+compaction_throughput_mb_per_sec: 32
 
 # Track cached row keys during compaction, and re-cache their new
 # positions in the compacted sstable.  Disable if you use really large

@@ -1,6 +1,6 @@
 class test ( 
-$port = '8480',
-$routes = ['192.168.1.2', '192.168.1.3', '192.168.1.4'],
+#$port = '8480',
+#$routes = ['192.168.1.2', '192.168.1.3', '192.168.1.4'],
 )
  {
   $members = [
@@ -17,9 +17,15 @@ $routes = ['192.168.1.2', '192.168.1.3', '192.168.1.4'],
 
 #$fullroute = inline_template("<%= routes %>")
 
-file { '/tmp/1':
+@@file { '/tmp/1':
   ensure  => present,
-  content => template('test/test.erb'),
+  content => $::ipaddress_eth1,
 }
+
+
+  File <<| |>> {
+  }
+
+
 
 }

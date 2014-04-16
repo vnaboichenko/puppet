@@ -1,11 +1,36 @@
+	$deployment_id   = "moe_lab"
+	$env 		= "dev"
+$nagios_host    = '10.0.0.30'
+
+import "nrpe/nrpe"
+stage { [1, 2, 3, 4]: }
+Stage[1] -> Stage[main] -> Stage[2] -> Stage[3] -> Stage[4]
 
 
-$routes = ['192.168.1.2', '192.168.1.3', '192.168.1.4']
+
+#class for nagios
+class monitoring {
+
+	class {'nrpe_packages':
+		stage => 1,
+	}
+	class {'nrpe_extra_plugins':
+		stage => 2,
+	}
+	class {'snmpd':
+		stage => 3,
+	}
+}
+
+
+
 
 
 
 node /haproxy-*/ {
 
+include nagios::hosts::generic 
+include monitoring
 class {'haproxy':
 
 upstreams => hiera('magnetodb_upstreams'),
@@ -37,7 +62,12 @@ port    => hiera('magnetodb_port'),
 node /magneto-client-*/ {
 
 
+include nagios::hosts::generic 
+include monitoring
+
+
 class {'magnetodb':
+
 seeds    => hiera('seeds'),
 }
 
@@ -45,16 +75,19 @@ seeds    => hiera('seeds'),
 
 node /magnetodbapi-*/ {
 
-
-class {'magnetodb':
-seeds    => hiera('seeds'),
-}
+include nagios::hosts::generic 
+include monitoring
+#class {'magnetodb':
+#seeds    => hiera('seeds'),
+#}
 
 }
 
 node /cassandra-*/ {
 
 
+include nagios::hosts::generic 
+include monitoring
 class {"cassandra":
 
 seeds    => hiera('seeds'),
@@ -73,14 +106,12 @@ java_version => hiera('java_version'),
 
 
 
-	$deployment_id   = "test2"
-	$env 		= "dev"
-node "magnetodb-1" {
+node "nagios" {
 
 	$nagios_hostname = "$hostname_$ipaddress"
 class {'nagios::server':
      }
-#include monitoring
+include monitoring
 
 }
 
