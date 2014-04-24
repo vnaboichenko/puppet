@@ -5,7 +5,8 @@ $heap_newsize = '800M',
 $version      = '2.0.7',
 $jmx_port     = '7199',
 $mount	      = 'undef',
-$bind_address = "$::ipaddress_eth0",
+#$bind_address = "$::ipaddress_eth0",
+$bind_address = "$::ipaddress_br100",
 $seeds        = ["$::ipaddress_eth0"],
 $initial_token = '',
 $cluster_name = 'Test Cluster',
@@ -24,10 +25,6 @@ $ntp_status = 'running',
 #$seeds_to_conf = inline_template("<%= seeds.join(', ') %>")
 
 
-file { '/tmp/1':
-  ensure  => present,
-  content => "$seeds_to_conf",
-}
 class { 'java':
 java_tarbar => $java_tarbar,
 java_version => $java_version,
@@ -35,16 +32,16 @@ java_base    =>  $java_base,
  }
 
 
- if $max_heap == 'undef' 
+ if $max_heap == undef
 	    { fail("'\$max_heap' is not defined, plese enter \$max_heap='1700M'") 
 		    }
 
- if $seeds == 'undef' 
+ if $seeds == undef
 	    { fail("'\$seeds' is not defined") 
 		    }
 
 
- if $heap_newsize == 'undef' 
+ if $heap_newsize == undef
 	    { fail("'\$heap_newsize' is not defined, plese enter \$heap_newsize='800M'") 
 		    }
 
@@ -52,9 +49,9 @@ java_base    =>  $java_base,
     ensure => installed,
         }
 
-  service { "ntp":
-    ensure => $ntp_status,
-        }
+#  service { "ntp":
+#    ensure => $ntp_status,
+#        }
         
         group { "cassandra":
 		ensure => present,

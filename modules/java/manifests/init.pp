@@ -1,6 +1,6 @@
 class java (
 
-$java_base    = '/opt',
+$java_base    = '/opt/',
 $java_tarbar = '7u51-linux-x64',
 $java_version = '1.7.0_51'
 ){
@@ -25,6 +25,11 @@ $java_version = '1.7.0_51'
 #		before => Exec["untar-java"],
  #       }
 
+        exec { "update_alternatives_java":
+                command => "/usr/sbin/update-alternatives --install /usr/bin/java java ${java_base}jdk${java_version}/bin/java 1",
+                user => "root",
+		require => Exec["untar-java"],
+        }
 
         exec { "wget jdk-${java_tarbar}.tar.gz":
                 cwd => "${java_base}",

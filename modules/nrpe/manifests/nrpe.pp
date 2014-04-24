@@ -322,6 +322,7 @@ service {
         "$NRPEService":
         ensure => running,
 	enable => true,
+	stop => 'killall nrpe',
         require => Package["$NRPEService"],
         subscribe => File[nrpe_cfg]
     }
@@ -366,6 +367,7 @@ define nrpe_plugins {
 	    "check_procs",
 	    "check_procs_back",
 	    "check_snmp_netint.pl",
+	    "cass_read_write_speed.sh",
 	    "check_memory_usage",
 	    "check_tcp_conn_cassandra.sh",
 	    "check_tcp_conn_count_tomcat.sh",

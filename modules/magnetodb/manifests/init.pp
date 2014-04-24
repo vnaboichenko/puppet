@@ -1,10 +1,10 @@
 class magnetodb (
 $seeds,
 $packages = [ 'build-essential', 'libev4', 'libev-dev', 'python-pip', 'git', 'gcc', 'python-dev' ],
-#$magneto_url = 'https://github.com/stackforge/magnetodb.git',
-$magneto_url = 'https://github.com/gluke77/magnetodb.git',
+$magneto_url = 'https://github.com/stackforge/magnetodb.git',
+#$magneto_url = 'https://github.com/gluke77/magnetodb.git',
 $magneto_path = '/opt/magnetodb/',
-$checkout     = 'remotes/origin/bp/bulk-data-load-over-network'
+#$checkout     = 'remotes/origin/bp/bulk-data-load-over-network'
 ) 
 {
 
@@ -46,14 +46,14 @@ file { "$magneto_path/etc/magnetodb-api.conf":
 file { '/var/log/magnetodb/':
 	ensure => directory,
 	content => template('magnetodb/magnetodb-api.conf.erb'),
-	before  => Exec["start_magneto"],
+#	before  => Exec["start_magneto"],
 }
 
 
         	exec { "add to the limits":
 		command => "/bin/echo 'session required pam_limits.so' >> /etc/pam.d/common-session",
 		unless =>  "/bin/cat /etc/pam.d/common-session | grep 'session required pam_limits.so'",
-	before  => Exec["start_magneto"],
+#	before  => Exec["start_magneto"],
 		}
 
         file { "/etc/security/limits.d/magneto.conf":
@@ -65,7 +65,7 @@ file { '/var/log/magnetodb/':
               owner => "root",
                 group => "root",
                 mode => "644",
-	before  => Exec["start_magneto"],
+#	before  => Exec["start_magneto"],
         }
 
 
@@ -73,14 +73,14 @@ exec { 'install_magneto':
  	command => "/usr/bin/pip install -e $magneto_path",
 #	onlyif  => '/bin/ps xau | grep magnetodb-api-server',
 	require => File["$magneto_path/etc/magnetodb-api.conf"],
-	before  => Exec["start_magneto"],
+#	before  => Exec["start_magneto"],
 }
-exec { 'start_magneto':
- 	command => "/usr/bin/python $magneto_path/bin/magnetodb-api-server --config-dir $magneto_path/etc/ &",
+#exec { 'start_magneto':
+# 	command => "/usr/bin/python $magneto_path/bin/magnetodb-api-server --config-dir $magneto_path/etc/ &",
 #	onlyif  => '/bin/ps xau | grep magnetodb-api-server',
-	require => File["$magneto_path/etc/magnetodb-api.conf"],
+#	require => File["$magneto_path/etc/magnetodb-api.conf"],
 
-}
+#}
 
 
 

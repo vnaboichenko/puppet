@@ -26,14 +26,12 @@ defaults
 
 
 listen magneto :9999
-        mode tcp
-        option tcplog
+        mode http
+        option httplog
         balance leastconn
-	server magneto1 10.0.0.19:9999 check
-        server magneto2 10.0.0.18:9999 check
-        server magneto3 10.0.0.26:9999 check
-        server magneto4 10.0.0.16:9999 check
-        server magneto5 10.0.0.14:9999 check
+
+  <% x = 1%> <% upstreams.each do |i| %> <% x = x + 1%> server magneto-<%= x%> <%= i %>:<%= port%> check 
+  <% end %>
 
 listen magneto3 :80
   <% x = 1%> <% upstreams.each do |i| %> <% x = x + 1%> server magneto-<%= x%> <%= i %>:<%= port%> check 
