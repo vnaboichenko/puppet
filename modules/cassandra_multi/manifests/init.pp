@@ -5,7 +5,7 @@ $heap_newsize = '800M',
 $version      = '2.0.7',
 $jmx_port     = '7199',
 $mount	      = 'undef',
-$bind_address = "$::ipaddress_eth1",
+$bind_address = "$::ipaddress_eth0",
 #$bind_address = "$::ipaddress_br100",
 $seeds        = ["$::ipaddress_eth0"],
 $initial_token = '',
@@ -220,6 +220,14 @@ java_base    =>  $java_base,
 	}
         
    
+        file { "${cassandra::cassandra_base}/apache-cassandra-${cassandra::version}/conf/cassandra-topology.properties":
+                alias => "cassandra-topology",
+                content => template("cassandra/conf/cassandra-topology.properties.erb"),
+                owner => "cassandra",
+                group => "cassandra",
+                mode => "644",
+                require => File["cassandra-app-dir"]
+        }
         file { "${cassandra::cassandra_base}/apache-cassandra-${cassandra::version}/conf/cassandra.yaml":
                 alias => "cassandra-yaml",
                 content => template("cassandra/conf/cassandra.yaml.erb"),

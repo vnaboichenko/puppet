@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# chkconfig: 345 99 01
+#init script for cassandra
+
+SCRIPT_DIR=`dirname $0`
+
+
+U=`id -nu`
+
+if [ $U != cassandra ]; then
+        # use "-l (login)" to delete the environment variables of the calling shell.
+       exec su -l cassandra -c "$0 $@"
+fi
+
+echo "i am $U , run script $0 $@"
+
+#'OK, now I am user cassandra'
+
+
+
+
+
+case $1 in
+start)
+        <%= scope.lookupvar('cassandra::cassandra_base') %>/cassandra/bin/cassandra 
+        ;; 
+stop)   
+        <%= scope.lookupvar('cassandra::cassandra_base') %>/cassandra/bin/nodetool -h <%= scope.lookupvar('bind_address') %> drain
+	sleep 10
+        process=`ps xau | grep CassandraDaemon | grep -v grep | awk '{print $2}'`
+	kill -9 $process
+        ;; 
+restart)
+        <%= scope.lookupvar('cassandra::cassandra_base') %>/cassandra/bin/nodetool -h  <%= scope.lookupvar('bind_address') %> drain
+	sleep 10
+        process=`ps xau | grep CassandraDaemon | grep -v grep | awk '{print $2}'`
+	kill -9 $process
+        <%= scope.lookupvar('cassandra::cassandra_base') %>/cassandra/bin/cassandra
+        ;; 
+  status)
+#   su - $USER -c "$CMD_STATUS"
+
+        <%= scope.lookupvar('cassandra::cassandra_base') %>/cassandra/bin/nodetool -h  <%= scope.lookupvar('bind_address') %> ring
+        process=`ps xau | grep CassandraDaemon | grep -v grep | awk '{print $2}'`
+        if [ "$process" == "" ]
+        then
+            echo "cassandra is not running"
+            exit 1
+        else
+            echo "cassandra is running"
+            exit 0
+                    fi
+   ;;
+  *)
+    echo "Usage: $0 start|stop|status"
+    exit 3
+    ;;
+
+esac    
+exit 0
+
+

@@ -8,7 +8,6 @@ stage { [1, 2, 3, 4]: }
 Stage[1] -> Stage[main] -> Stage[2] -> Stage[3] -> Stage[4]
 
 
-
 #class for nagios
 class monitoring {
 
@@ -22,6 +21,8 @@ class monitoring {
 		stage => 3,
 	}
 }
+
+
 
 node "Datastax" {
 
@@ -72,14 +73,7 @@ port    => hiera('magnetodb_port'),
 
 node /magneto-client-*/ {
 
-
-include nagios::hosts::generic 
-include monitoring
-
-
-class {'magnetodb':
-seeds    => hiera('seeds'),
-}
+include cassandra
 
 }
 
@@ -95,6 +89,23 @@ seeds    => hiera('seeds'),
 
 
 
+node /magneto-cas-sstable-*/ {
+
+#include nagios::hosts::cassandra
+#include monitoring
+class {"cassandra":
+seeds    => hiera('seeds'),
+initial_token => hiera('initial_token'),
+max_heap     => hiera('max_heap'),
+heap_newsize => hiera('heap_newsize'),
+version      => hiera('version'),
+cluster_name => hiera('cluster_name'),
+java_tarbar  => hiera('java_tarbar'),
+java_version => hiera('java_version'),
+
+}
+
+}
 
 node /cassandra-*/ {
 
@@ -139,27 +150,6 @@ node "magneto-2" {
 
 
 
-
-node "node-15" {
-
-	$nagios_hostname = "$hostname_$ipaddress"
-class {'nagios::server':
-     }
-include monitoring
-
-#include epel_repo
-
-}
-
-
-node 'node-8', 'node-9', 'node-10','node-11' {
-
-	$nagios_hostname = "API_$hostname"
-       include nagios::hosts::generic 
-
-include monitoring
-
-}
 
 node 'node-1', 'node-2', 'node-3','node-4', 'node-5', 'node-6' {
 

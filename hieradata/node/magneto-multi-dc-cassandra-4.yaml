@@ -1,0 +1,17 @@
+---
+initial_token: ''
+seeds:
+- '166.78.147.142'
+- '166.78.60.115'
+- '166.78.155.222'
+- '166.78.155.200'
+- '166.78.60.241'
+- '166.78.60.73'
+
+max_heap     : '3G'
+heap_newsize : '400M'
+version      : '2.0.7'
+cluster_name : 'Test Cluster'
+java_tarbar : '7u51-linux-x64'
+java_version : '1.7.0_51'
+bind_address : "$::ipaddress_eth1"

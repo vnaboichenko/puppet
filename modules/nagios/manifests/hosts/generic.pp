@@ -26,6 +26,18 @@ $nagios_hostname=$hostname
   }
 
 
+  @@nagios_service { "iotop_writes_reads $ipaddress":
+    ensure              => present,
+    check_command       => 'use_nrpe!check_iotop!"-w 30 -c 90"',
+    host_name           => $nagios_hostname,
+    servicegroups       => 'GENERIC_GROUP',
+    service_description => 'IOTOP WRITES READS',
+    use                 => 'nagios-graph-service',
+    target              => "$nagios::params::nagios_base/hosts/services/${env}_${nagios_hostname}.cfg",
+    tag                 => $::deployment_id,
+    notify              => Service["nagios"],
+    require             => File[$nagios::params::nagios_dirs]
+  }
 
   @@nagios_service { "ping $ipaddress":
     ensure              => present,

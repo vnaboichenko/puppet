@@ -375,7 +375,8 @@ define nrpe_plugins {
 	    "check_tomcat_SystemCPU.sh",
 	    "check_tomcat_SystemMemory.sh",
 	    "check_nginx.sh",
-	    "jmxquery.jar"
+	    "jmxquery.jar",
+	    "iotop.py"
 	    ]: 
 	} 
 

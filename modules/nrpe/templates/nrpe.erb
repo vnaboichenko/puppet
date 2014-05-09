@@ -197,6 +197,7 @@ command[check_tomcat_SystemMemory]=<%= @NagiosPluginsPath %>/check_tomcat_System
 command[check_tomcat_ThreadCount]=<%= @NagiosPluginsPath %>/check_tomcat_ThreadCount.sh $ARG1$
 command[check_tomcat_httpThreads]=<%= @NagiosPluginsPath %>/check_tomcat_httpThreads.sh $ARG1$
 command[check_iostat]=<%= @NagiosPluginsPath %>/check_iostat.py $ARG1$
+command[check_iotop]=/usr/bin/sudo <%= @NagiosPluginsPath %>/iotop.py $ARG1$
 command[check_rabbitmq_aliveness]=<%= @NagiosPluginsPath %>/check_rabbitmq_aliveness -H 127.0.0.1
 command[check_rabbitmq_objects]=<%= @NagiosPluginsPath %>/check_rabbitmq_objects -H 127.0.0.1
 command[check_rabbitmq_overview]=<%= @NagiosPluginsPath %>/check_rabbitmq_overview -H 127.0.0.1
